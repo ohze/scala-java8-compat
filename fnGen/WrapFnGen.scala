@@ -226,13 +226,13 @@ object WrapFnGen {
 
       // This is especially tricky because functions are contravariant in their arguments
       // Need to prevent e.g. Any => String from "downcasting" itself to Int => String; we want the more exact conversion
-      if (jfn.title == "IntFunction") {
-        println("jfn.pTypes: " + jfn.pTypes)
-        println("jfn.pTypes.forall(! _.isFinalType): " + jfn.pTypes.forall(! _.isFinalType))
-        println("jfn.sig: " + jfn.sig)
-        println("jfn.sam.typeSignature: " + jfn.sam.typeSignature)
-        println("jfn.sig == jfn.sam.typeSignature: " + (jfn.sig == jfn.sam.typeSignature))
-      }
+//      if (jfn.title == "IntFunction") {
+//        println("jfn.pTypes: " + jfn.pTypes)
+//        println("jfn.pTypes.forall(! _.isFinalType): " + jfn.pTypes.forall(! _.isFinalType))
+//        println("jfn.sig: " + jfn.sig)
+//        println("jfn.sam.typeSignature: " + jfn.sam.typeSignature)
+//        println("jfn.sig == jfn.sam.typeSignature: " + (jfn.sig == jfn.sam.typeSignature))
+//      }
       val s2jImpTree: (Tree, Int) =
         if (jfn.pTypes.forall(! _.isFinalType) && jfn.sig == jfn.sam.typeSignature)
           (
