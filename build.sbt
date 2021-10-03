@@ -175,6 +175,13 @@ lazy val scalaJava8Compat = (project in file("."))
         organization.value.replace('.', '/') /
         base / v
       Process(s"unzip -o $name", wd).!.ensuring(_ == 0)
+
+      val src = (Compile / managedSourceDirectories).value.head / "FunctionConverters.scala"
+      println()
+      println(src)
+      println(IO.read(src))
+      println("------\n")
+
       val javap = Process(s"javap -c -v scala.compat.java8.Priority1FunctionConverters", wd).!!
       println("\n++++javap++++")
       println(javap)
