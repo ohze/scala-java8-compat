@@ -169,8 +169,16 @@ lazy val scalaJava8Compat = (project in file("."))
     TaskKey[Unit]("check247") := {
       import scala.sys.process._
 
-      "grep enrichAsJavaIntFunction target/scala-*/src_managed/main/FunctionConverters.scala".!
+      val grep = "grep enrichAsJavaIntFunction target/scala-*/src_managed/main/FunctionConverters.scala"
+      println(grep)
+      grep.!
       println("\n\n")
+
+      val src = (Compile / managedSourceDirectories).value.head / "FunctionConverters.scala"
+      println()
+      println(src)
+      println(IO.readLines(src).find(_.contains("implicit def enrichAsJavaIntFunction")))
+      println("------\n")
 
       val v = version.value
       val base = moduleName.value + "_" + scalaBinaryVersion.value
@@ -179,12 +187,6 @@ lazy val scalaJava8Compat = (project in file("."))
         organization.value.replace('.', '/') /
         base / v
       Process(s"unzip -o $name", wd).!.ensuring(_ == 0)
-
-      val src = (Compile / managedSourceDirectories).value.head / "FunctionConverters.scala"
-      println()
-      println(src)
-      println(IO.read(src))
-      println("------\n")
 
       val javap = Process(s"javap -c -v scala.compat.java8.Priority1FunctionConverters", wd).!!
       println("\n++++javap++++")
