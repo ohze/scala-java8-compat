@@ -6,3 +6,4 @@ target
 /.target
 /bin
 benchmark/JmhBench.scala
+/old/
