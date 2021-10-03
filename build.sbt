@@ -164,3 +164,49 @@ lazy val scalaJava8Compat = (project in file("."))
        |import scala.compat.java8.FutureConverters._
        |""".stripMargin
   )
+  .settings(
+    publishTo := Some(Resolver.file("sonatype-local-bundle", sonatypeBundleDirectory.value)),
+    TaskKey[Unit]("check247") := {
+      import scala.sys.process._
+      val v = version.value
+      val base = moduleName.value + "_" + scalaBinaryVersion.value
+      val name = s"$base-$v.jar"
+      val wd = sonatypeBundleDirectory.value /
+        organization.value.replace('.', '/') /
+        base / v
+      Process(s"unzip -o $name", wd).!.ensuring(_ == 0)
+      val javap = Process(s"javap -c -v scala.compat.java8.Priority1FunctionConverters", wd).!!
+      println("\n++++javap++++")
+      println(javap)
+      println("----javap----\n")
+//      // 2.11
+//      "  public abstract <A0 extends java.lang.Object, R extends java.lang.Object> scala.Function1<java.lang.Object, R> enrichAsJavaIntFunction(scala.Function1<A0, R>, scala.Predef$$eq$colon$eq<A0, java.lang.Object>);"
+//      // 2.13
+//      "  public default <A0 extends java.lang.Object, R extends java.lang.Object> scala.Function1<java.lang.Object, R> enrichAsJavaIntFunction(scala.Function1<A0, R>, scala.$eq$colon$eq<A0, java.lang.Object>);"
+//      // 2.13 in release 1.0.1 on maven central
+//      "  public default <R extends java.lang.Object> scala.Function1<java.lang.Object, R> enrichAsJavaIntFunction(scala.Function1<java.lang.Object, R>);"
+      val sig = javap
+        .linesIterator
+        .find(_.contains("> enrichAsJavaIntFunction(scala.Function1<"))
+      sig.foreach(println)
+      sig.get.ensuring(_.contains("$eq$colon$eq"))
+    },
+  )
+
+lazy val tmp = project
+  .settings(
+    scalaVersion := "2.13.6",
+    //  libraryDependencies := Seq("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.1"),
+    libraryDependencies := Seq("org.scala-lang.modules" %% "scala-java8-compat" % "1.0.0"),
+    TaskKey[Unit]("runMe") := {
+      import scala.sys.process._
+      val myCp = (Compile / products).value
+      val compatCp = (scalaJava8Compat / Compile / products).value
+      val scalaLib = scalaInstance.value.libraryJars
+      val cp = (myCp ++ compatCp ++ scalaLib).mkString(":")
+      val cmd = s"java -cp $cp Main"
+      println(cmd)
+      val out = cmd.!!
+      println(out)
+    },
+  )
