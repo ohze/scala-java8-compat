@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - mima
   pull_request:
 jobs:
   test:
